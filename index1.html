@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>Pong Game</title>
+       <style>
+        /*I am setting the style for the entire page*/
+        body{
+            margin: 0;
+            padding: 0;
+            background-color: rgb(226, 183, 43);
+        }
+
+        /*Set the style for the game area*/
+        canvas{
+            background-color: aqua;
+            display: block;
+            margin: 0 auto;
+            border: 2px solid white;
+        }
+       </style>
+       <!--We have left CSS land and are back into HTML land-->
+    </head>
+    <body>
+        <canvas id="PongCanvas" width="800" height="400"></canvas>
+        <!--We are about to leave HTML land for JavaScript land-->
+        <script>
+            //Create a variable that JavaScript can use to access the canvas HTML element's attribute
+            const canvas = document.getElementById("PongCanvas");
+            const context = canvas.getContext("2d");
+
+            //Create the ball and paddles here
+            const paddleWidth = 10;
+            const paddleHeight = 100;
+            const ballRadius = 10;
+
+            //Handle the paddles for both the AI and player and we can handle the ball
+            let playerPaddleY = canvas.height / 2 - paddleHeight / 2;
+            let aiPaddleY = (canvas.height - paddleHeight) / 2;
+            //Handle the ball and setup the ball
+            let ballX = canvas.width / 2;
+            let ballY = canvas.height / 2;
+            let ballSpeedX = 4;
+            let ballSpeedY = 4;
+
+            
+            //Draw out all the elements of the game on our canvas
+            //We will do this by creating a JavaScript function that will draw the game elements
+            function drawGameElements(){
+                //Clear the screen
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                //Draw both paddles
+                //Draw the HUMAN player paddle on the left side
+                context.fillStyle = "white";
+                context.fillRect(0, playerPaddleY, paddleWidth, paddleHeight);
+                //Draw the AI paddle on the right side
+                context.fillStyle = "white";
+                context.fillRect(canvas.width - paddleWidth, aiPaddleY, paddleWidth, paddleHeight);
+
+                //Draw the ball
+                context.beginPath();
+                context.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+                context.fillStyle = "purple";
+                context.fill();
+                context.closePath();
+            }
+
+            //Create a function that will handle the movement of our game elements
+            function move(){
+                //Move the ball
+                ballX += ballSpeedX;
+                ballY += ballSpeedY;
+
+                //Handle the bounce of the ball from the top and bottom of the canvas
+                if(ballY + ballRadius > canvas.height || ballY - ballRadius < 0){
+                    ballSpeedY = -ballSpeedY;
+                }
+
+                //Handle the event of the ball when it hits the paddles
+                //Check if the ball hits the player paddle on the left
+                if(ballX - ballRadius < paddleWidth){
+                    if(ballY > playerPaddleY && ballY < playerPaddleY + paddleHeight){
+                        //If the ball hits the played paddle, then reverse the balls direction
+                        ballSpeedX = -ballSpeedX;
+                    }
+                }
+
+                //Add logic to handle the AI paddle when it hits the ball
+                if(ballX + ballRadius > canvas.width - paddleWidth){
+                    //Check if the ball hits the AI paddle on the right
+                    if(ballY > aiPaddleY && ballY < aiPaddleY + paddleHeight){//Start scoope operator for the if statment
+                        //If the ball hits the AI paddle, then reverse the direction of the ball
+                        ballSpeedX = -ballSpeedX;
+                    }//End scope operator for the if statement
+                }
+
+                //Make the AI paddle follow the ball
+                aiPaddleY = ballY - paddleHeight / 2;
+            }//End of the move function
+
+            //Create a function that allows our human player to control their paddle with the mouse
+            canvas.addEventListener('mousemove', event => {
+                const canvasPosition = canvas.getBoundingClientRect();
+                playerPaddleY = event.clientY - canvasPosition.top - paddleHeight / 2;
+            });
+
+            //Create one more function, this function will be our main game loop that controls the game
+            function gameLoop(){
+                move();
+                drawGameElements();
+                //Call the gameloop over and over to keep updating the frame and the game running.
+                requestAnimationFrame(gameLoop);
+            }
+
+            //Kickoff the gameloop
+            //This is calling our function the gameloop above.
+            gameLoop();
+            //Now we are about to leave JavaScript land and go back into HTML land
+        </script>
+        <!--Now we are back in HTML land-->
+    </body>
+</html>
